@@ -1,5 +1,6 @@
 import pygame
 import math
+import settings
 
 class Player(pygame.sprite.Sprite):
     def __init__(self,image,location):
@@ -22,12 +23,12 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = self.rect.x + self.vel_x
         self.rect.y = self.rect.y + self.vel_y
         if self.rect.right < 0:
-            self.rect.left = 800
-        if self.rect.left > 800:
+            self.rect.left = settings.WIDTH
+        if self.rect.left > settings.WIDTH:
             self.rect.right = 0
         if self.rect.bottom < 0:
-            self.rect.top = 400
-        if self.rect.top > 400:
+            self.rect.top = settings.HEIGHT
+        if self.rect.top > settings.HEIGHT:
             self.rect.bottom = 0
         
         ###move version 1 code:

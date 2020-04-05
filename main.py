@@ -1,23 +1,15 @@
 import pygame, random, os
 import player
+import settings
 
+settings.init()
 
-
-#our configuration constants
-WIDTH = 800 #game window dimensions
-HEIGHT = 400 #game window dimensions
-FPS = 30 #framerate
-BLACK = (0,0,0)
-WHITE = (255,255,255)
-RED = (255,0,0)
-GREEN = (0,255,0)
-BLUE = (0,0,255)
 PLAYER_ACCEL = 4
 
 #initialize pygame and create window
 pygame.init()
 pygame.mixer.init()
-screen = pygame.display.set_mode((WIDTH,HEIGHT))
+screen = pygame.display.set_mode((settings.WIDTH,settings.HEIGHT))
 pygame.display.set_caption("My game")
 clock = pygame.time.Clock()
 
@@ -27,14 +19,14 @@ asset_folder = os.path.join(game_folder, "assets")
 player_img = pygame.image.load(os.path.join(asset_folder, 'ship.png'))
 
 all_sprites = pygame.sprite.Group()
-player = player.Player(player_img,(WIDTH/2,HEIGHT/2))
+player = player.Player(player_img,(settings.WIDTH/2,settings.HEIGHT/2))
 all_sprites.add(player)
 
 #game loop
 running = True
 while running:
     #slows loop to our FPS
-    clock.tick(FPS)
+    clock.tick(settings.FPS)
     #Process input
     for event in pygame.event.get():
         #check for closing window
