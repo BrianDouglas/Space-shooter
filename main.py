@@ -4,8 +4,6 @@ import settings
 
 settings.init()
 
-PLAYER_ACCEL = 4
-
 #initialize pygame and create window
 pygame.init()
 pygame.mixer.init()
@@ -33,15 +31,28 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+    #directional movement controls
+    #acceleration on key pressed, else decel
     keys = pygame.key.get_pressed()
+    #right left control
     if keys[pygame.K_a]:
-        player.control(-PLAYER_ACCEL,0)
-    if keys[pygame.K_d]:
-        player.control(PLAYER_ACCEL,0)
+        player.control(-1,0)
+    elif keys[pygame.K_d]:
+        player.control(1,0)
+    else:
+        player.decel("x")
+    #up down control
     if keys[pygame.K_s]:
-        player.control(0,PLAYER_ACCEL)
-    if keys[pygame.K_w]:
-        player.control(0,-PLAYER_ACCEL)
+        player.control(0,1)
+    elif keys[pygame.K_w]:
+        player.control(0,-1)
+    else:
+        player.decel("y")
+    
+    #blink when space is pressed
+    if keys[pygame.K_SPACE]:
+        player.blink()
+
     #Update
     all_sprites.update()
     #Render
