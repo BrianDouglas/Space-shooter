@@ -25,14 +25,11 @@ running = True
 while running:
     #slows loop to our FPS
     clock.tick(settings.FPS)
-    #Process input
-    for event in pygame.event.get():
-        #check for closing window
-        if event.type == pygame.QUIT:
-            running = False
+    
+                
 
-    #directional movement controls
-    #acceleration on key pressed, else decel
+
+    #directional movement controls. acceleration on key pressed, else decel
     keys = pygame.key.get_pressed()
     #right left control
     if keys[pygame.K_a]:
@@ -48,17 +45,31 @@ while running:
         player.control(0,-1)
     else:
         player.decel("y")
-    
-    #blink when space is pressed
-    if keys[pygame.K_SPACE]:
-        player.blink()
+
+    #Process events (single press)
+    for event in pygame.event.get():
+        #check for closing window
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and keys[pygame.K_a]:
+                player.altBlink("a")
+            elif event.key == pygame.K_SPACE and keys[pygame.K_d]:
+                player.altBlink("d")
+            elif event.key == pygame.K_SPACE and keys[pygame.K_w]:
+                player.altBlink("w")
+            elif event.key == pygame.K_SPACE and keys[pygame.K_s]:
+                player.altBlink("s")
+            elif event.key == pygame.K_SPACE:
+                player.altBlink("w")
+            
 
     #Update
     all_sprites.update()
     #Render
     screen.fill((125,125,125))
-    player.playerStats(screen)
     all_sprites.draw(screen)
+    player.playerStats(screen)
     
     pygame.display.flip() #after rendering everything, flip the display (double-buffering)
 
