@@ -5,13 +5,14 @@ TODO:
 -(DONE)adding movement feature that lets the player blink a set distence towards the cursor
     -(DONE)Limited number of charges that replenish over time
     -(DONE)GUI element for blinking
--Make the ship shoot
-    -Shoot in the direction of the cursor
-    -create art assets for firing
+-(DONE)Make the ship shoot
+    -(DONE)Shoot in the direction of the cursor
+    -(DONE)create art asset for firing
     -fire animation for ship? (aseprite animation tutorial)
 -Write collision detection code
 -Look into making an Actor class.
     -Seperate out code from the player class that will be common to all actors (players and enemies)
+    -update player to work with pygame.math.Vector2()
 -Create sprite object "terrain"
     -is this a child of Actor?
     -collision with player and bullets
