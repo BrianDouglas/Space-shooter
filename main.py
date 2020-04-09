@@ -1,5 +1,5 @@
 import pygame, random, os
-import player
+import actor
 import settings
 
 settings.init()
@@ -14,10 +14,10 @@ clock = pygame.time.Clock()
 #set up asset folders and player img
 game_folder = os.path.dirname(__file__)
 asset_folder = os.path.join(game_folder, "assets")
-player_img = pygame.image.load(os.path.join(asset_folder, 'ship.png'))
-
+player_img = pygame.image.load(os.path.join(asset_folder, "ship.png"))
+player_bull_img = pygame.image.load(os.path.join(asset_folder, "player_bullet.png"))
 all_sprites = pygame.sprite.Group()
-player = player.Player(player_img,(settings.WIDTH/2,settings.HEIGHT/2))
+player = actor.Player(player_img,(settings.WIDTH/2,settings.HEIGHT/2))
 all_sprites.add(player)
 
 #game loop
@@ -62,7 +62,9 @@ while running:
                 player.altBlink("s")
             elif event.key == pygame.K_SPACE:
                 player.altBlink("w")
-            
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            bullet = actor.Bullet(player_bull_img,player.rect.center,player.angle,5)
+            all_sprites.add(bullet)
 
     #Update
     all_sprites.update()

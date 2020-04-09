@@ -3,8 +3,8 @@
 
 TODO:
 -(DONE)adding movement feature that lets the player blink a set distence towards the cursor
-    -Limited number of charges that replenish over time
-    -GUI element for blinking
+    -(DONE)Limited number of charges that replenish over time
+    -(DONE)GUI element for blinking
 -Make the ship shoot
     -Shoot in the direction of the cursor
     -create art assets for firing

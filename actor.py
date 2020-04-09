@@ -1,13 +1,67 @@
+'''
+Contains the Actor class which is a child of pygame.sprite.Sprite
+The actor class is for all objects in game which move and are displayed in the game
+Actor has several sub classes:
+-Bullet
+-Player
+-*more to come*
+'''
+
 import pygame
 import math
 import settings
 
-class Player(pygame.sprite.Sprite):
+class Actor(pygame.sprite.Sprite):
+    def __init__(self,image,location,angle,velocity):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.center = (location)
+        self.angle = angle
+        self.rotate()
+        self.velocity = pygame.math.Vector2((velocity*math.cos(angle),-velocity*math.sin(angle)))
+
+    def update(self):
+        print("update")
+
+    def rotate(self):
+        self.image = pygame.transform.rotate(self.image, math.degrees(self.angle) - 90)
+        self.rect = self.image.get_rect(center = self.rect.center)
+
+class Bullet(Actor):
+    def __init__(self,image,location,angle,velocity):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.center = (location)
+        self.angle = angle
+        self.rotate()
+        self.velocity = pygame.math.Vector2((velocity*math.cos(angle),-velocity*math.sin(angle)))
+
+
+    def update(self):
+        self.rect.center += self.velocity
+
+        if self.rect.right < 0:
+            print("bullet dead")
+            self.kill()
+        if self.rect.left > settings.WIDTH:
+            print("bullet dead")
+            self.kill()
+        if self.rect.bottom < 0:
+            print("bullet dead")
+            self.kill()
+        if self.rect.top > settings.HEIGHT:
+            print("bullet dead")
+            self.kill()
+
+
+class Player(Actor):
     def __init__(self,image,location):
         pygame.sprite.Sprite.__init__(self)
-        self.image = image #required by parent
+        self.image = image #required by sprite
         self.OG_image = image
-        self.rect = self.image.get_rect() #required by parent
+        self.rect = self.image.get_rect() #required by sprite
         self.rect.center = (location)
         self.vel_cap = 10
         self.speed_cap = math.hypot(self. vel_cap,self.vel_cap)
@@ -26,7 +80,8 @@ class Player(pygame.sprite.Sprite):
         self.font = pygame.font.Font('freesansbold.ttf',12)
         
 
-    def update(self): #required def from parent
+    def update(self): #required def from sprite
+        self.calcAngle()
         self.rotate() #rotate the ship based on mouse position
         self.rect.center = (self.rect.center[0] + self.vel_x, self.rect.center[1] + self.vel_y) #update ship position
         #check for chip exiting the screen
@@ -82,12 +137,10 @@ class Player(pygame.sprite.Sprite):
 
         self.velCap()
 
-    def rotate(self):
+    def calcAngle(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         rel_x, rel_y = mouse_x - self.rect.center[0], mouse_y - self.rect.center[1]
         self.angle = math.atan2(-rel_y, rel_x) % (2*math.pi)
-        self.image = pygame.transform.rotate(self.OG_image, math.degrees(self.angle) - 90)
-        self.rect = self.image.get_rect(center = self.rect.center)
 
     def blink(self): #blink towards cursor
         if (self.blink_charge - self.blink_distance) > 0:
