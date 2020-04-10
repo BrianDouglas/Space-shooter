@@ -12,8 +12,8 @@ def init():
     global GREEN
     global BLUE
     #global values
-    WIDTH = 800
-    HEIGHT = 800
+    WIDTH = 1200
+    HEIGHT = 1000
     FPS = 30
     #colors
     BLACK = (0,0,0)

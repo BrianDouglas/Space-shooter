@@ -13,7 +13,7 @@ import math
 import settings
 
 class Actor(pygame.sprite.Sprite):
-    def __init__(self,image,location,angle,speed):
+    def __init__(self,image,location,angle=0,speed=0):
         pygame.sprite.Sprite.__init__(self)
         self.image = image
         self.OG_image = image
@@ -23,10 +23,10 @@ class Actor(pygame.sprite.Sprite):
         self.velocity = pygame.math.Vector2((speed*math.cos(angle),-speed*math.sin(angle)))
 
     def update(self):
-        print("update")
+        pass
 
-    def rotate(self):
-        self.image = pygame.transform.rotate(self.OG_image, math.degrees(self.angle) - 90)
+    def rotateTo(self,angle):
+        self.image = pygame.transform.rotate(self.OG_image, angle)
         self.rect = self.image.get_rect(center = self.rect.center)
 
 class Bullet(Actor):
@@ -39,7 +39,7 @@ class Bullet(Actor):
         self.float_pos = pygame.math.Vector2(location) #for accuracy
         self.angle = angle
         self.velocity = pygame.math.Vector2((speed*math.cos(angle),-speed*math.sin(angle)))
-        self.rotate()
+        self.rotateTo(math.degrees(self.angle) - 90)
         print(self.velocity)
 
     def update(self):
@@ -85,10 +85,10 @@ class Player(Actor):
         
 
     def update(self): #required def from sprite
-        self.calcAngle()
-        self.rotate() #rotate the ship based on mouse position
+        self.calcAngleToMouse()
+        self.rotateTo(math.degrees(self.angle) - 90) 
         self.rect.center += self.velocity #update ship position
-        #check for chip exiting the screen
+        #check for ship exiting the screen
         if self.rect.right < 0:
             self.rect.left = settings.WIDTH - 1
         if self.rect.left > settings.WIDTH:
@@ -137,14 +137,17 @@ class Player(Actor):
 
         self.velCap()
 
-    def calcAngle(self):
+    def calcAngleToMouse(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         rel_x, rel_y = mouse_x - self.rect.center[0], mouse_y - self.rect.center[1]
         self.angle = math.atan2(-rel_y, rel_x) % (2*math.pi)
 
     def blink(self): #blink towards cursor
         if (self.blink_charge - self.blink_distance) > 0:
-            self.rect.center = (self.rect.center[0] + (math.cos(self.angle) * self.blink_distance), self.rect.center[1] - (math.sin(self.angle) * self.blink_distance))
+            self.rect.center = (
+                self.rect.center[0] + (math.cos(self.angle) * self.blink_distance), 
+                self.rect.center[1] - (math.sin(self.angle) * self.blink_distance)
+                )
             self.blink_charge -= self.blink_distance
 
     def altBlink(self,direction): #blink on direction pressed
@@ -161,14 +164,25 @@ class Player(Actor):
 
     def playerStats(self,screen):
         #debug data
-        stats = self.font.render("off", True, settings.GREEN) #self.font.render(f"Position: ({self.rect.x} ,{self.rect.y})    Velocity: ( {self.velocity.magnitude()} )    Accel: ({self.accel.magnitude()})   Angle: {round(math.degrees(self.angle),2)}   BlinkCharge: {self.blink_charge}",True,(0,255,0))
+        debug_str = "off" #f"Position: ({self.rect.x} ,{self.rect.y})    Velocity: ( {self.velocity.magnitude()} )    Accel: ({self.accel.magnitude()})   Angle: {round(math.degrees(self.angle),2)}   BlinkCharge: {self.blink_charge}"
+        stats = self.font.render(debug_str, True, settings.GREEN) 
         #blink bar
         blink_charge_percent = self.blink_charge / self.blink_charge_max
         blink_bar_length = settings.WIDTH - 20
         blink_bar_tick_offset = (self.blink_distance / self.blink_charge_max) * blink_bar_length
-        pygame.draw.rect(screen, settings.BLUE,(10, settings.HEIGHT - 20, (blink_bar_length)*blink_charge_percent, 20),0)
+        pygame.draw.rect(
+            screen, 
+            settings.BLUE,
+            (10, settings.HEIGHT - 20, (blink_bar_length)*blink_charge_percent, 20), #x,y,w,h
+            0
+            )
         for i in range(int(self.blink_charge_max/self.blink_distance)):
-            pygame.draw.line(screen, settings.GREEN, (10 + blink_bar_tick_offset*(i+1), settings.HEIGHT - 20),(10 + blink_bar_tick_offset*(i+1), settings.HEIGHT))
+            pygame.draw.line(
+                screen, 
+                settings.GREEN, 
+                (10 + blink_bar_tick_offset*(i+1), settings.HEIGHT - 20),
+                (10 + blink_bar_tick_offset*(i+1), settings.HEIGHT)
+            )
         screen.blit(stats, (10,10))
         
         

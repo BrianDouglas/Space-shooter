@@ -11,15 +11,50 @@ screen = pygame.display.set_mode((settings.WIDTH,settings.HEIGHT))
 pygame.display.set_caption("My game")
 clock = pygame.time.Clock()
 
-#set up asset folders and player img
+#set up asset folder
 game_folder = os.path.dirname(__file__)
 asset_folder = os.path.join(game_folder, "assets")
+
+#load images
 player_img = pygame.image.load(os.path.join(asset_folder, "ship.png"))
 player_bull_img = pygame.image.load(os.path.join(asset_folder, "player_bullet.png"))
+fence_corner_img = pygame.image.load(os.path.join(asset_folder, "fence_pylon.png"))
+fence_vertical_img = pygame.image.load(os.path.join(asset_folder, "fence1.png"))
+fence_horizontal_img = pygame.transform.rotate(fence_vertical_img, 90)
+
+#creats sprite group
 all_sprites = pygame.sprite.Group()
+
+#create and add to group
 player = actor.Player(player_img,(settings.WIDTH/2,settings.HEIGHT/2))
 all_sprites.add(player)
+#the fence pieces
+fence_corner_NE = actor.Actor(fence_corner_img,(settings.WIDTH - 10, 10))
+all_sprites.add(fence_corner_NE)
 
+fence_corner_NW = actor.Actor(fence_corner_img,(10, 10))
+fence_corner_NW.rotateTo(90)
+all_sprites.add(fence_corner_NW)
+
+fence_corner_SW = actor.Actor(fence_corner_img,(10, settings.HEIGHT-30))
+fence_corner_SW.rotateTo(180)
+all_sprites.add(fence_corner_SW)
+
+fence_corner_SE = actor.Actor(fence_corner_img,(settings.WIDTH - 10, settings.HEIGHT-30))
+fence_corner_SE.rotateTo(270)
+all_sprites.add(fence_corner_SE)
+
+for i in range(30, settings.HEIGHT - 30,20):
+    fence_segment = actor.Actor(fence_vertical_img,(10,i))
+    all_sprites.add(fence_segment)
+    fence_segment = actor.Actor(fence_vertical_img,(settings.WIDTH - 10,i))
+    all_sprites.add(fence_segment)
+
+for i in range(30, settings.WIDTH - 20, 20):
+    fence_segment = actor.Actor(fence_horizontal_img,(i, 10))
+    all_sprites.add(fence_segment)
+    fence_segment = actor.Actor(fence_horizontal_img,(i, settings.HEIGHT - 30))
+    all_sprites.add(fence_segment)
 #game loop
 running = True
 while running:
