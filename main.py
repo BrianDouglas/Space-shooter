@@ -63,7 +63,7 @@ while running:
             elif event.key == pygame.K_SPACE:
                 player.altBlink("w")
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            bullet = actor.Bullet(player_bull_img,player.rect.center,player.angle,5)
+            bullet = actor.Bullet(player_bull_img, player.rect.center, player.angle)
             all_sprites.add(bullet)
 
     #Update

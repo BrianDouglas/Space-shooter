@@ -13,35 +13,38 @@ import math
 import settings
 
 class Actor(pygame.sprite.Sprite):
-    def __init__(self,image,location,angle,velocity):
+    def __init__(self,image,location,angle,speed):
         pygame.sprite.Sprite.__init__(self)
         self.image = image
+        self.OG_image = image
         self.rect = self.image.get_rect()
         self.rect.center = (location)
         self.angle = angle
-        self.rotate()
-        self.velocity = pygame.math.Vector2((velocity*math.cos(angle),-velocity*math.sin(angle)))
+        self.velocity = pygame.math.Vector2((speed*math.cos(angle),-speed*math.sin(angle)))
 
     def update(self):
         print("update")
 
     def rotate(self):
-        self.image = pygame.transform.rotate(self.image, math.degrees(self.angle) - 90)
+        self.image = pygame.transform.rotate(self.OG_image, math.degrees(self.angle) - 90)
         self.rect = self.image.get_rect(center = self.rect.center)
 
 class Bullet(Actor):
-    def __init__(self,image,location,angle,velocity):
+    def __init__(self,image,location,angle,speed = 20):
         pygame.sprite.Sprite.__init__(self)
         self.image = image
+        self.OG_image = image
         self.rect = self.image.get_rect()
         self.rect.center = (location)
+        self.float_pos = pygame.math.Vector2(location) #for accuracy
         self.angle = angle
+        self.velocity = pygame.math.Vector2((speed*math.cos(angle),-speed*math.sin(angle)))
         self.rotate()
-        self.velocity = pygame.math.Vector2((velocity*math.cos(angle),-velocity*math.sin(angle)))
-
+        print(self.velocity)
 
     def update(self):
-        self.rect.center += self.velocity
+        self.float_pos += self.velocity #add to float position for accuracy
+        self.rect.center = self.float_pos #rect.center converts to INT
 
         if self.rect.right < 0:
             print("bullet dead")
@@ -66,10 +69,10 @@ class Player(Actor):
         self.rect.center = (location)
         self.vel_cap = 10
         self.speed_cap = math.hypot(self. vel_cap,self.vel_cap)
-        self.vel_x = 0
-        self.vel_y = 0
+        self.velocity = pygame.math.Vector2(0,0)
         self.speed = 0
         self.accel_rate = 0.5
+        self.accel = pygame.math.Vector2(0,0)
         self.accel_x = 0
         self.accel_y = 0
         self.frame = 0
@@ -84,7 +87,7 @@ class Player(Actor):
     def update(self): #required def from sprite
         self.calcAngle()
         self.rotate() #rotate the ship based on mouse position
-        self.rect.center = (self.rect.center[0] + self.vel_x, self.rect.center[1] + self.vel_y) #update ship position
+        self.rect.center += self.velocity #update ship position
         #check for chip exiting the screen
         if self.rect.right < 0:
             self.rect.left = settings.WIDTH - 1
@@ -98,43 +101,39 @@ class Player(Actor):
         if self.blink_charge < self.blink_charge_max:
             self.blink_charge += self.blink_charge_rate
 
-    def velCap(self): ###need to update to account for angular velocity###
+    def velCap(self):
         #control for max speed
         if self.speed > self.speed_cap:
-            self.vel_x = self.vel_x/abs(self.speed) * self.speed_cap
-            self.vel_y = self.vel_y/abs(self.speed) * self.speed_cap
-        #if abs(self.vel_y) > self.vel_cap:
-            #self.vel_y = self.vel_y/abs(self.vel_y) * self.vel_cap
-        #if abs(self.vel_x) >= self.vel_cap:
-            #self.vel_x = self.vel_x/abs(self.vel_x) * self.vel_cap
+            self.velocity.x = self.velocity.x/abs(self.speed) * self.speed_cap
+            self.velocity.y = self.velocity.y/abs(self.speed) * self.speed_cap
 
     def decel(self,axis):
         if axis == "x":
-            self.vel_x *= 0.98
-            if -0.5 < self.vel_x < 0:
-                self.vel_x = 0
+            self.velocity.x *= 0.98
+            if -0.5 < self.velocity.x < 0:
+                self.velocity.x = 0
         if axis == "y":
-            self.vel_y *= 0.98
-            if -0.5 < self.vel_y < 0:
-                self.vel_y = 0
+            self.velocity.y *= 0.98
+            if -0.5 < self.velocity.y < 0:
+                self.velocity.y = 0
 
     def control(self,x,y):
         #based on positive, negate or 0 sent
         if x == 1:
-            self.accel_x = self.accel_rate
+            self.accel.x = self.accel_rate
         elif x == -1:
-            self.accel_x = -self.accel_rate
+            self.accel.x = -self.accel_rate
         else:
-            self.accel_x = 0
+            self.accel.x = 0
         if y == 1:
-            self.accel_y = self.accel_rate
+            self.accel.y = self.accel_rate
         elif y == -1:
-            self.accel_y = -self.accel_rate
+            self.accel.y = -self.accel_rate
         else:
-            self.accel_y = 0
-        self.vel_y += self.accel_y
-        self.vel_x += self.accel_x
-        self.speed = math.hypot(self.vel_x, self.vel_y)
+            self.accel.y = 0
+        self.velocity += self.accel
+        self.speed = self.velocity.magnitude()
+
 
         self.velCap()
 
@@ -162,7 +161,7 @@ class Player(Actor):
 
     def playerStats(self,screen):
         #debug data
-        stats = self.font.render(f"Position: ({self.rect.x} ,{self.rect.y})    Velocity: ({round(math.hypot(self.vel_x,self.vel_y), 2)})    Accel: ({self.accel_x},{self.accel_y})   Angle: {round(math.degrees(self.angle),2)}   BlinkCharge: {self.blink_charge}",True,(0,255,0))
+        stats = self.font.render("off", True, settings.GREEN) #self.font.render(f"Position: ({self.rect.x} ,{self.rect.y})    Velocity: ( {self.velocity.magnitude()} )    Accel: ({self.accel.magnitude()})   Angle: {round(math.degrees(self.angle),2)}   BlinkCharge: {self.blink_charge}",True,(0,255,0))
         #blink bar
         blink_charge_percent = self.blink_charge / self.blink_charge_max
         blink_bar_length = settings.WIDTH - 20
