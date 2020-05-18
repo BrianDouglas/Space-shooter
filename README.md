@@ -18,11 +18,11 @@ TODO:
     
 -Write collision detection code
 
--Look into making an Actor class.
+-(DONE)Look into making an Actor class.
 
-    -Seperate out code from the player class that will be common to all actors (players and enemies)
+    -(DONE)Seperate out code from the player class that will be common to all actors (players and enemies)
     
-    -update player to work with pygame.math.Vector2()
+    -(DONE)update player to work with pygame.math.Vector2()
     
 -Create sprite object "terrain"
 
